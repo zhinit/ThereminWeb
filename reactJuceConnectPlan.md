@@ -271,10 +271,10 @@ Click the button. You should hear 440Hz.
 
 ## Checklist
 
-- [ ] Emscripten installed and working
-- [ ] C++ oscillator compiles to WASM
-- [ ] WASM files in `frontend/public/` folder
-- [ ] `dsp-processor.js` in `frontend/public/`
+- [x] Emscripten installed and working
+- [x] C++ oscillator compiles to WASM
+- [x] WASM files in `frontend/public/` folder
+- [x] `dsp-processor.js` in `frontend/public/`
 - [ ] AudioWorklet loads WASM module
 - [ ] React button toggles playback
 - [ ] 440Hz tone plays in browser
