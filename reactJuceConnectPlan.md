@@ -93,11 +93,8 @@ Run from the project root (`TherminWeb/`):
 ```bash
 emcc dsp/oscillator.cpp \
     -o frontend/public/audio-engine.js \
-    -s WASM=1 \
     -s MODULARIZE=1 \
     -s EXPORT_NAME="createAudioEngine" \
-    -s EXPORTED_RUNTIME_METHODS='["cwrap"]' \
-    -s ALLOW_MEMORY_GROWTH=1 \
     -s ENVIRONMENT='web,worker' \
     --bind \
     -O3
