@@ -95,10 +95,14 @@ emcc dsp/oscillator.cpp \
     -o frontend/public/audio-engine.js \
     -s MODULARIZE=1 \
     -s EXPORT_NAME="createAudioEngine" \
-    -s ENVIRONMENT='web,worker' \
-    --bind \
-    -O3
+    -s ENVIRONMENT='web,worker,shell' \
+    -s SINGLE_FILE=1 \
+    -s EXPORTED_FUNCTIONS='["_malloc","_free"]' \
+    -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap","HEAPF32"]' \
+    --bind
 ```
+
+Note: `SINGLE_FILE=1` embeds WASM as base64 in the JS file (no separate .wasm file needed).
 
 ### 4. Create AudioWorklet Processor
 
