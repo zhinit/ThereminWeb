@@ -11,6 +11,11 @@ function App() {
     if (audioContextRef.current) return;
 
     const ctx = new AudioContext();
+
+    // Fetch the Emscripten glue code in main thread
+    const response = await fetch("/audio-engine.js");
+    const scriptCode = await response.text();
+
     await ctx.audioWorklet.addModule("/dsp-processor.js");
 
     const node = new AudioWorkletNode(ctx, "dsp-processor");
@@ -22,7 +27,8 @@ function App() {
       }
     };
 
-    node.port.postMessage({ type: "init" });
+    // Send the script code to the worklet
+    node.port.postMessage({ type: "init", scriptCode });
 
     audioContextRef.current = ctx;
     workletNodeRef.current = node;
@@ -47,13 +53,14 @@ function App() {
 
   return (
     <div>
-      <h1>C++ WASM Sine Wave Woo!</h1>
+      <h1>C++ WASM Sine Wave</h1>
       <button
         onClick={togglePlay}
         style={{ padding: "1rem 2rem", fontSize: "1.2rem" }}
       >
         {isPlaying ? "Stop" : "Play 440Hz"}
       </button>
+      {!isReady && audioContextRef.current && <p>Loading WASM...</p>}
     </div>
   );
 }

@@ -8,9 +8,11 @@ class DSPProcessor extends AudioWorkletProcessor {
   }
 
   async handleMessage(data) {
-    // initialization
+    // initialization - receive script from main thread
     if (data.type === "init") {
-      importScripts("audio-engine.js");
+      // Execute the Emscripten glue code sent from main thread
+      const fn = new Function(data.scriptCode + "; return createAudioEngine;");
+      const createAudioEngine = fn();
       const module = await createAudioEngine();
       this.engine = new module.SineOscillator();
       this.engine.setSampleRate(sampleRate);
@@ -32,14 +34,11 @@ class DSPProcessor extends AudioWorkletProcessor {
     if (!this.engine || !this.module) return true;
 
     // set browser output first output bus, first channel on that bus (mono)
-    // this is the audio buffer for the browser
     const output = outputs[0][0];
     // set numSamples to size of browser audio buffer
     const numSamples = output.length;
 
-    // if buffer has not been allocated and is big enough
-    // reserves contiguous spot of memory
-    // float 32 is 4 bytes
+    // if buffer has not been allocated or is too small
     if (!this.heapBuffer || this.heapBuffer.length < numSamples) {
       if (this.heapBuffer) this.module._free(this.heapBuffer);
       this.heapBuffer = this.module._malloc(numSamples * 4);
@@ -48,7 +47,7 @@ class DSPProcessor extends AudioWorkletProcessor {
     // call wasm process function which puts result in wasm heap memory
     this.engine.process(this.heapBuffer, numSamples);
 
-    // pull audio from wasm private memory so it can be played in browser
+    // pull audio from wasm heap memory so it can be played in browser
     const wasmOutput = new Float32Array(
       this.module.HEAPF32.buffer,
       this.heapBuffer,
@@ -56,7 +55,7 @@ class DSPProcessor extends AudioWorkletProcessor {
     );
     output.set(wasmOutput);
 
-    // call me again when the next block of samples is need
+    // call me again when the next block of samples is needed
     return true;
   }
 }

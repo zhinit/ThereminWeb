@@ -5,7 +5,7 @@
 class SineOscillator {
 public:
     void setPlaying(bool playing) { playing_ = playing; }
-    void setFreq(bool freq) { freq_ = freq; }
+    void setFreq(float freq) { freq_ = freq; }
     void setSampleRate (float sampleRate) { sampleRate_ = sampleRate; }
 
     void process(uintptr_t outputPtr, int numSamples) {
@@ -35,5 +35,6 @@ EMSCRIPTEN_BINDINGS(audio_module) {
         .constructor()
         .function("setPlaying", &SineOscillator::setPlaying)
         .function("setFreq", &SineOscillator::setFreq)
-        .function("setSampleRate", &SineOscillator::setSampleRate);
+        .function("setSampleRate", &SineOscillator::setSampleRate)
+        .function("process", &SineOscillator::process);
 }
